@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 class Monkey(object):
   def __init__(self):
     self.items = []
@@ -7,23 +9,8 @@ class Monkey(object):
     self.testFalseMonkey = -1
     self.inspectCount = 0
 
-  def addItems(self, items):
-    self.items += items
-
   def addItem(self, item):
     self.items.append(item)
-
-  def setOperation(self, operation):
-    self.operation = operation
-
-  def setTest(self, test):
-    self.test = test
-
-  def setTestTrueMonkey(self, monkeyIdx):
-    self.testTrueMonkey = monkeyIdx
-
-  def setTestFalseMonkey(self, monkeyIdx):
-    self.testFalseMonkey = monkeyIdx
 
   def getFirstItem(self):
     return self.items.pop(0)
@@ -35,7 +22,7 @@ class Monkey(object):
     self.inspectCount += 1
 
   def __str__(self) -> str:
-    return "Items:" + ",".join(str(item) for item in self.items) + " | true:" + str(self.testTrueMonkey) + " | false:" + str(self.testFalseMonkey) + " | inspections:" + str(self.inspectCount)
+    return "Items:" + ",".join(str(item) for item in self.items) + " | inspections:" + str(self.inspectCount)
 
 
 def getStartingItemsFrom(line):
@@ -52,10 +39,6 @@ def getOperationFrom(line):
         y = int(line[2])
       if line[1] == "+":
         return x + y
-      if line[1] == "-":
-        return x - y
-      if line[1] == "/":
-        return x / y
       if line[1] == "*":
         return x * y
     return operationPredicate
@@ -76,23 +59,23 @@ def getTestFalseMonkey(line):
   return monkey
 
 monkeys = []
-with open('input.txt', 'r') as f:
+with open('test_input.txt', 'r') as f:
   lines = f.readlines()
 
   monkeyCount = (len(lines) + 1) // 7
   for m in range(monkeyCount):
     startingLine = m * 7
     monkey = Monkey()
-    monkey.addItems(getStartingItemsFrom(lines[startingLine+1]))
-    monkey.setOperation(getOperationFrom(lines[startingLine+2]))
-    monkey.setTest(getTestFrom(lines[startingLine+3]))
-    monkey.setTestTrueMonkey(getTestTrueMonkey(lines[startingLine+4]))
-    monkey.setTestFalseMonkey(getTestFalseMonkey(lines[startingLine+5]))
+    monkey.items = getStartingItemsFrom(lines[startingLine+1])
+    monkey.operation = getOperationFrom(lines[startingLine+2])
+    monkey.test = getTestFrom(lines[startingLine+3])
+    monkey.testTrueMonkey = getTestTrueMonkey(lines[startingLine+4])
+    monkey.testFalseMonkey = getTestFalseMonkey(lines[startingLine+5])
     monkeys.append(monkey)
     # print(monkey)
 
-
-for round in range(20):
+rounds = 20
+for round in range(rounds):
   for monkey in monkeys:
     while monkey.hasItems():
       monkey.incrementInspectCount()

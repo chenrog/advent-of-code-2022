@@ -1,3 +1,6 @@
-myInput = open('test_input.txt', 'r')
+with open('test_input.txt', 'r') as f:
+  lines = f.readlines()
 
-lines = myInput.readlines()
+  for line in lines:
+    line = line.strip()
+    print(line)

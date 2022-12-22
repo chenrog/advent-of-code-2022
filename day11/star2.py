@@ -18,9 +18,9 @@ class Monkey(object):
 
 
 class Item(object):
-  def __init__(self, startingValue):
+  def __init__(self, startingValue, remaindersByFactor={}):
     self.startingValue = startingValue
-    self.remaindersByFactor = {}
+    self.remaindersByFactor = dict(remaindersByFactor) # apparently this is how you pass by value instead of reference, who knew :shrug:
 
   def test(self, value):
     for factor, remainder in self.remaindersByFactor.items():
@@ -32,24 +32,27 @@ class Item(object):
   def addFactor(self, factor):
     self.remaindersByFactor[factor] = self.startingValue
 
-  def addValue(self, value):
+  def __add__(self, value):
     for factor, remainder in self.remaindersByFactor.items():
       self.remaindersByFactor[factor] = remainder + value
+    return Item(self.startingValue, self.remaindersByFactor)
 
-  def multiplyValue(self, value):
+  def __mul__(self, value):
     for factor, remainder in self.remaindersByFactor.items():
       self.remaindersByFactor[factor] = remainder * value
+    return Item(self.startingValue, self.remaindersByFactor)
 
-  def squareValue(self):
+  def __pow__(self, value):
     for factor, remainder in self.remaindersByFactor.items():
-      self.remaindersByFactor[factor] = remainder * remainder
+      self.remaindersByFactor[factor] = remainder ** value
+    return Item(self.startingValue, self.remaindersByFactor)
 
   def __str__(self) -> str:
     remaindersByFactor = []
     for factor, remainder in self.remaindersByFactor.items():
       remaindersByFactor.append(str(factor) + ":" + str(remainder))
     # return "startingValue:" + str(self.startingValue) + " | " + "remaindersByFactor: " + ", ".join(remaindersByFactor)
-    return "startingValue:" + str(self.startingValue)
+    return str(self.startingValue)
 
 
 # PARSING FUNCTIONS
@@ -66,30 +69,24 @@ def getOperationFrom(line):
   def operation(x):
     def operationPredicate(y=0):
       if line[2] == "old":
-        x.squareValue()
-        return x
+        return x ** 2
       else:
         y = int(line[2])
       if line[1] == "+":
-        x.addValue(y)
-        return x
+        return x + y
       if line[1] == "*":
-        x.multiplyValue(y)
-        return x
+        return x * y
     return operationPredicate
   return operation
 
 def getTestFrom(line):
-  divisibleValue = int(line.strip().replace("Test: divisible by ", ""))
-  return divisibleValue
+  return int(line.strip().replace("Test: divisible by ", ""))
 
 def getTestTrueMonkey(line):
-  monkey = int(line.strip().replace("If true: throw to monkey ", ""))
-  return monkey
+  return int(line.strip().replace("If true: throw to monkey ", ""))
 
 def getTestFalseMonkey(line):
-  monkey = int(line.strip().replace("If false: throw to monkey ", ""))
-  return monkey
+  return int(line.strip().replace("If false: throw to monkey ", ""))
 
 
 # SETUP
@@ -141,6 +138,7 @@ for m in range(len(monkeys)):
 highestInspections = [0, 0]
 for monkey in monkeys:
   if monkey.inspectCount > highestInspections[0]:
-    highestInspections = [monkey.inspectCount, highestInspections[0]]
+    highestInspections[0] = monkey.inspectCount
+    highestInspections.sort()
 
 print("Monkey Business: ", highestInspections[0] * highestInspections[1])

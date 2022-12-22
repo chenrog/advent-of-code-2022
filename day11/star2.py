@@ -16,20 +16,36 @@ class Monkey(object):
   def getFirstItem(self):
     return self.items.pop(0)
 
-  def hasItems(self):
-    return len(self.items) > 0
-
-  def incrementInspectCount(self):
-    self.inspectCount += 1
-
   def __str__(self) -> str:
     return "inspections:" + str(self.inspectCount) + " | Items:" + ",".join(str(item) for item in self.items)
 
 
 class Item(object):
-  def __init__(self, value):
-    self.value == value
-    self.remainders = {}
+  def __init__(self, startingValue):
+    self.startingValue = startingValue
+    self.remaindersByFactor = {}
+
+  def test(self, factor):
+    if self.remaindersByFactor[factor] % factor == 0:
+      self.remaindersByFactor[factor] = 0
+
+  def addFactor(self, factor):
+    self.remaindersByFactor[factor] = self.startingValue
+
+  def addValue(self, value):
+    for factor, remainder in self.remaindersByFactor.items():
+      self.remaindersByFactor[factor] = remainder + value
+
+  def multiplyValue(self, value):
+    for factor, remainder in self.remaindersByFactor.items():
+      self.remaindersByFactor[factor] = remainder * value
+
+  def __str__(self) -> str:
+    remaindersByFactor = []
+    for factor, remainder in self.remaindersByFactor.items():
+      remaindersByFactor.append(str(factor) + ":" + str(remainder))
+    return "startingValue:" + str(self.startingValue) + " | " + "remaindersByFactor: " + ", ".join(remaindersByFactor)
+
 
 
 def getStartingItemsFrom(line):
@@ -88,8 +104,8 @@ with open('test_input.txt', 'r') as f:
 rounds = 20
 for round in range(rounds):
   for monkey in monkeys:
-    while monkey.hasItems():
-      monkey.incrementInspectCount()
+    while len(monkey.items) > 0:
+      monkey.inspectCount += 1
       item = monkey.getFirstItem()
       item = monkey.operation(item)()
       if monkey.test(item):

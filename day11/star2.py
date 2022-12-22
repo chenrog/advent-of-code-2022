@@ -5,6 +5,7 @@ class Monkey(object):
     self.items = []
     self.operation = ()
     self.test = ()
+    self.testFactor = -1
     self.testTrueMonkey = -1
     self.testFalseMonkey = -1
     self.inspectCount = 0
@@ -22,7 +23,13 @@ class Monkey(object):
     self.inspectCount += 1
 
   def __str__(self) -> str:
-    return "Items:" + ",".join(str(item) for item in self.items) + " | inspections:" + str(self.inspectCount)
+    return "inspections:" + str(self.inspectCount) + " | Items:" + ",".join(str(item) for item in self.items)
+
+
+class Item(object):
+  def __init__(self, value):
+    self.value == value
+    self.remainders = {}
 
 
 def getStartingItemsFrom(line):
@@ -48,7 +55,7 @@ def getTestFrom(line):
   divisibleByVal = int(line.strip().replace("Test: divisible by ", ""))
   def test(x):
     return x % divisibleByVal == 0
-  return test
+  return divisibleByVal, test
 
 def getTestTrueMonkey(line):
   monkey = int(line.strip().replace("If true: throw to monkey ", ""))
@@ -58,6 +65,8 @@ def getTestFalseMonkey(line):
   monkey = int(line.strip().replace("If false: throw to monkey ", ""))
   return monkey
 
+
+# SETUP
 monkeys = []
 with open('test_input.txt', 'r') as f:
   lines = f.readlines()
@@ -68,12 +77,14 @@ with open('test_input.txt', 'r') as f:
     monkey = Monkey()
     monkey.items = getStartingItemsFrom(lines[startingLine+1])
     monkey.operation = getOperationFrom(lines[startingLine+2])
-    monkey.test = getTestFrom(lines[startingLine+3])
+    monkey.testFactor, monkey.test = getTestFrom(lines[startingLine+3])
     monkey.testTrueMonkey = getTestTrueMonkey(lines[startingLine+4])
     monkey.testFalseMonkey = getTestFalseMonkey(lines[startingLine+5])
     monkeys.append(monkey)
     # print(monkey)
 
+
+# ROUNDS
 rounds = 20
 for round in range(rounds):
   for monkey in monkeys:
@@ -81,16 +92,19 @@ for round in range(rounds):
       monkey.incrementInspectCount()
       item = monkey.getFirstItem()
       item = monkey.operation(item)()
-      item = item // 3
       if monkey.test(item):
         monkeys[monkey.testTrueMonkey].addItem(item)
       else:
         monkeys[monkey.testFalseMonkey].addItem(item)
 
+
+# OUTPUTS
+for m in range(len(monkeys)):
+  print("Monkey:" + str(m), "|", monkeys[m])
+
 highestInspections = [0, 0]
 for monkey in monkeys:
   if monkey.inspectCount > highestInspections[0]:
     highestInspections = [monkey.inspectCount, highestInspections[0]]
-  print(monkey)
 
 print("Monkey Business: ", highestInspections[0] * highestInspections[1])

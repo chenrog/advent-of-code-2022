@@ -22,17 +22,12 @@ class Item(object):
     self.startingValue = startingValue
     self.remaindersByFactor = {}
 
-  def test(self, factor):
-    # for factor, remainder in self.remaindersByFactor.items():
-    #   if remainder % factor == 0:
-    #     self.remaindersByFactor[factor] = 0
+  def test(self, value):
+    for factor, remainder in self.remaindersByFactor.items():
+      if remainder % factor == 0:
+        self.remaindersByFactor[factor] = 0
 
-    # return self.remaindersByFactor == 0
-
-    if self.remaindersByFactor[factor] % factor == 0:
-      self.remaindersByFactor[factor] = 0
-      return True
-    return False
+    return self.remaindersByFactor[value] == 0
 
   def addFactor(self, factor):
     self.remaindersByFactor[factor] = self.startingValue
@@ -72,17 +67,14 @@ def getOperationFrom(line):
     def operationPredicate(y=0):
       if line[2] == "old":
         x.squareValue()
-        # y = x
         return x
       else:
         y = int(line[2])
       if line[1] == "+":
         x.addValue(y)
-        # return x + y
         return x
       if line[1] == "*":
         x.multiplyValue(y)
-        # return x * y
         return x
     return operationPredicate
   return operation
@@ -129,7 +121,7 @@ with open('test_input.txt', 'r') as f:
 
 
 # ROUNDS
-rounds = 1000
+rounds = 10000
 for round in range(rounds):
   for monkey in monkeys:
     while len(monkey.items) > 0:

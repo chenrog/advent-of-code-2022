@@ -1,10 +1,7 @@
-from decimal import Decimal
-
 class Monkey(object):
   def __init__(self):
     self.items = []
     self.operation = ()
-    self.test = ()
     self.testFactor = -1
     self.testTrueMonkey = -1
     self.testFalseMonkey = -1
@@ -26,8 +23,16 @@ class Item(object):
     self.remaindersByFactor = {}
 
   def test(self, factor):
+    # for factor, remainder in self.remaindersByFactor.items():
+    #   if remainder % factor == 0:
+    #     self.remaindersByFactor[factor] = 0
+
+    # return self.remaindersByFactor == 0
+
     if self.remaindersByFactor[factor] % factor == 0:
       self.remaindersByFactor[factor] = 0
+      return True
+    return False
 
   def addFactor(self, factor):
     self.remaindersByFactor[factor] = self.startingValue
@@ -40,38 +45,51 @@ class Item(object):
     for factor, remainder in self.remaindersByFactor.items():
       self.remaindersByFactor[factor] = remainder * value
 
+  def squareValue(self):
+    for factor, remainder in self.remaindersByFactor.items():
+      self.remaindersByFactor[factor] = remainder * remainder
+
   def __str__(self) -> str:
     remaindersByFactor = []
     for factor, remainder in self.remaindersByFactor.items():
       remaindersByFactor.append(str(factor) + ":" + str(remainder))
-    return "startingValue:" + str(self.startingValue) + " | " + "remaindersByFactor: " + ", ".join(remaindersByFactor)
+    # return "startingValue:" + str(self.startingValue) + " | " + "remaindersByFactor: " + ", ".join(remaindersByFactor)
+    return "startingValue:" + str(self.startingValue)
 
 
-
+# PARSING FUNCTIONS
 def getStartingItemsFrom(line):
   line = line.strip().strip("Starting items: ").split(", ")
-  return list(map(int, line))
+  line = list(map(int, line))
+  items = []
+  for startingValue in line:
+    items.append(Item(startingValue))
+  return items
 
 def getOperationFrom(line):
   line = line.strip().replace("Operation: new = ", "").split(" ")
   def operation(x):
     def operationPredicate(y=0):
       if line[2] == "old":
-        y = x
+        x.squareValue()
+        # y = x
+        return x
       else:
         y = int(line[2])
       if line[1] == "+":
-        return x + y
+        x.addValue(y)
+        # return x + y
+        return x
       if line[1] == "*":
-        return x * y
+        x.multiplyValue(y)
+        # return x * y
+        return x
     return operationPredicate
   return operation
 
 def getTestFrom(line):
-  divisibleByVal = int(line.strip().replace("Test: divisible by ", ""))
-  def test(x):
-    return x % divisibleByVal == 0
-  return divisibleByVal, test
+  divisibleValue = int(line.strip().replace("Test: divisible by ", ""))
+  return divisibleValue
 
 def getTestTrueMonkey(line):
   monkey = int(line.strip().replace("If true: throw to monkey ", ""))
@@ -84,6 +102,8 @@ def getTestFalseMonkey(line):
 
 # SETUP
 monkeys = []
+items = []
+factors = []
 with open('test_input.txt', 'r') as f:
   lines = f.readlines()
 
@@ -91,24 +111,32 @@ with open('test_input.txt', 'r') as f:
   for m in range(monkeyCount):
     startingLine = m * 7
     monkey = Monkey()
-    monkey.items = getStartingItemsFrom(lines[startingLine+1])
+    startingItems = getStartingItemsFrom(lines[startingLine+1])
+    monkey.items += startingItems
+    items += startingItems
     monkey.operation = getOperationFrom(lines[startingLine+2])
-    monkey.testFactor, monkey.test = getTestFrom(lines[startingLine+3])
+    testFactor = getTestFrom(lines[startingLine+3])
+    monkey.testFactor = testFactor
+    factors.append(testFactor)
     monkey.testTrueMonkey = getTestTrueMonkey(lines[startingLine+4])
     monkey.testFalseMonkey = getTestFalseMonkey(lines[startingLine+5])
     monkeys.append(monkey)
     # print(monkey)
 
+  for i in items:
+    for f in factors:
+      i.addFactor(f)
+
 
 # ROUNDS
-rounds = 20
+rounds = 1000
 for round in range(rounds):
   for monkey in monkeys:
     while len(monkey.items) > 0:
       monkey.inspectCount += 1
       item = monkey.getFirstItem()
       item = monkey.operation(item)()
-      if monkey.test(item):
+      if item.test(monkey.testFactor):
         monkeys[monkey.testTrueMonkey].addItem(item)
       else:
         monkeys[monkey.testFalseMonkey].addItem(item)

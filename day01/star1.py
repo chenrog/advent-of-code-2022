@@ -7,11 +7,11 @@ lines = elvesInput.readlines()
 
 bag = 0
 for line in lines:
-  if line == '\n':
-    elves.append(bag)
-    bag = 0
-  else:
-    bag += int(line)
+    if line == '\n':
+        elves.append(bag)
+        bag = 0
+    else:
+        bag += int(line)
 
 elves.append(bag)
 
@@ -20,8 +20,8 @@ print(elves)
 largestBag = 0
 elfToAsk = 0
 for i in range(len(elves)):
-  if elves[i] > largestBag:
-    largestBag = elves[i]
-    elfToAsk = i
+    if elves[i] > largestBag:
+        largestBag = elves[i]
+        elfToAsk = i
 
 print(largestBag)

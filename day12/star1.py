@@ -1,3 +1,5 @@
+import heapq
+
 elevations = {
   "a":1,"b":2,"c":3,"d":4,"e":5,"f":6,"g":7,"h":8,"i":9,"j":10,"k":11,"l":12,"m":13,"n":14,
   "o":15,"p":16,"q":17,"r":18,"s":19,"t":20,"u":21,"v":22,"w":23,"x":24,"y":25,"z":26, "S":0, "E":27
@@ -26,44 +28,23 @@ class Graph(object):
   def addNode(self, node):
     self.nodes[node.coordinates] = node
 
-  def bfs(self):
-    return self.__bfs(self.startNode)
+  def astar(self):
+    return __astar(startNode, endNode, neighbors, heuristic)
 
-  def __bfs(self, node, searched={}):
-    # print(node.coordinates, node)
+  def __astar(self, startNode, endNode, neighbors, heuristic):
+    queue = [(heuristic(startNode), startNode)]
+    visited = set()
 
-    searched[node.coordinates] = 0
-    if node == self.endNode:
-      return len(searched) - 1
+    while queue:
+      _, current = heapq.heappop(queue)
+      if current == goal:
+        return path(current)
+      visited.add(current)
+      for s in successors(current):
+        if s not in visited:
+          heapq.heappush(queue, (heuristic(s), s))
 
-    neighborLengths = [9999]
-    x, y = node.coordinates
-    if x > 0:
-      nextNode = self.nodes[(x-1,y)]
-      # print(nextNode.coordinates, nextNode)
-      if nextNode.coordinates not in searched.keys() and node.elevation >= nextNode.elevation - 1:
-        # print("left")
-        neighborLengths.append(self.__bfs(nextNode, dict(searched)))
-    if x < self.colCount - 1:
-      nextNode = self.nodes[(x+1,y)]
-      # print(nextNode.coordinates, nextNode)
-      if nextNode.coordinates not in searched.keys() and node.elevation >= nextNode.elevation - 1:
-        # print("right")
-        neighborLengths.append(self.__bfs(nextNode, dict(searched)))
-    if y > 0:
-      nextNode = self.nodes[(x,y-1)]
-      # print(nextNode.coordinates, nextNode)
-      if nextNode.coordinates not in searched.keys() and node.elevation >= nextNode.elevation - 1:
-        # print("up")
-        neighborLengths.append(self.__bfs(nextNode, dict(searched)))
-    if y < self.rowCount - 1:
-      nextNode = self.nodes[(x,y+1)]
-      # print(nextNode.coordinates, nextNode)
-      if nextNode.coordinates not in searched.keys() and node.elevation >= nextNode.elevation - 1:
-        # print("down")
-        neighborLengths.append(self.__bfs(nextNode, dict(searched)))
-
-    return min(neighborLengths)
+  def heuristic():
 
   def __str__(self):
     return "|".join(str(node) for _, node in self.nodes.items())

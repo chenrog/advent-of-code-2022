@@ -1,4 +1,4 @@
-with open('test_input.txt', 'r') as f:
+with open('test_input.txt', 'r', encoding='UTF-8') as f:
     lines = f.readlines()
 
     for i, line in enumerate(lines):
